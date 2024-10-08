@@ -28,3 +28,17 @@ C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\obj\Debug\n
 C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\obj\Debug\net7.0\OrderService.pdb
 C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\obj\Debug\net7.0\OrderService.genruntimeconfig.cache
 C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\obj\Debug\net7.0\ref\OrderService.dll
+C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\bin\Debug\net7.0\Humanizer.dll
+C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.Design.dll
+C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.Relational.Design.dll
+C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\bin\Debug\net7.0\Microsoft.Extensions.DependencyModel.dll
+C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\bin\Debug\net7.0\Mono.TextTemplating.dll
+C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\bin\Debug\net7.0\Npgsql.dll
+C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\bin\Debug\net7.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
+C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\bin\Debug\net7.0\Npgsql.EntityFrameworkCore.PostgreSQL.Design.dll
+C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\bin\Debug\net7.0\System.CodeDom.dll
+C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\obj\Debug\net7.0\OrderService.csproj.AssemblyReference.cache
+C:\Users\Zhangir\source\repos\OrderService\OrderService\OrderService\obj\Debug\net7.0\OrderService.csproj.CopyComplete
