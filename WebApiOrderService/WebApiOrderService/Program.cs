@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using WebApiOrderService;
 using WebApiOrderService.AutoMapperOrder;
 using WebApiOrderService.EF;
+using WebApiOrderService.Models.DtoOrders;
+using WebApiOrderService.Models.OrderModels;
 using WebApiOrderService.Repositories;
 using WebApiOrderService.Repositories.InterfacesRepositories;
 
@@ -13,6 +15,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddTransient<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+ 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 var app = builder.Build();

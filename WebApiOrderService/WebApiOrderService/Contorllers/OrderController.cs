@@ -17,35 +17,57 @@ namespace WebApiOrderService.Contorllers
             _mapper = mapper;
         }
         [HttpGet("/api/GetAllOrders")]
-        public ActionResult<IEnumerable<DtoOrder>> GetAllOrders()
+        public ActionResult<IEnumerable<Order>> GetAllOrders()
         {
             if(orderRepository == null)
             {
                 return NotFound();
             }
-            List<DtoOrder> dtoOrder = _mapper.Map<List<DtoOrder>>(orderRepository.GetAllOrders());
-            return dtoOrder;
+            List<Order> orders = orderRepository.GetAllOrders();
+            return orders;
         }
 
         [HttpGet("/api/GetOrder/{id}")]
-        public ActionResult<DtoOrder> GetOrder(int id)
+        public ActionResult<Order> GetOrder(int id)
         {
-            return _mapper.Map<DtoOrder>(orderRepository.GetOrder(id));
+            return orderRepository.GetOrder(id);
         }
 
-        [HttpPost("/api/GetOrder/{order}")]
-        public ActionResult Create(Order order)
+        [HttpPost("/api/Create")]
+        public ActionResult<List<Order>> Create([Bind("Name,Description,Price")] Order order)
         {
             if(order != null)
             {
-                orderRepository.PostOrder(order);
-                if(orderRepository.GetAllOrders().LastOrDefault() == order)
-                {
-                    return Ok();
-                }
+                orderRepository.PostOrder(_mapper.Map<DtoOrder>(order));
+                return orderRepository.GetAllOrders();
             }
             return BadRequest();
         }
- 
+        [HttpDelete("/api/Delete/{id}")]
+        public ActionResult<Order> Delete(int id)
+        {
+            var order = orderRepository.GetOrder(id);
+            if(order != null)
+            {
+                orderRepository.DeleteOrder(id);
+                return order;
+            }
+            return BadRequest();
+        }
+        [HttpPut("/api/Put/{id}")]
+        public ActionResult<Order> Update(int id,[Bind("Name,Description,Price")] Order order)
+        { 
+            if (order != null)
+            {
+                var orderToUpdate = orderRepository.GetOrder(id);
+                orderToUpdate.Name = order.Name;
+                orderToUpdate.Description = order.Description;
+                orderToUpdate.Price = order.Price;
+
+                orderRepository.PutOrder(_mapper.Map<DtoOrder>(orderToUpdate));
+                return order;
+            }
+            return BadRequest();
+        }
     }
 }

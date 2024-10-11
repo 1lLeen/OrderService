@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using WebApiOrderService.EF;
+using WebApiOrderService.Models.DtoOrders;
 using WebApiOrderService.Models.OrderModels;
 using WebApiOrderService.Repositories.InterfacesRepositories;
 
@@ -8,9 +9,11 @@ namespace WebApiOrderService.Repositories
     public class OrderRepository:IOrderRepository
     {
         private readonly OrderDbContext _context; 
-        public OrderRepository(OrderDbContext context)
+        private readonly IMapper _mapper;
+        public OrderRepository(OrderDbContext context,IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public void DeleteOrder(int id)
@@ -36,29 +39,29 @@ namespace WebApiOrderService.Repositories
             return _context.Orders.FirstOrDefault(o => o.Id == id);
         }
 
-        public void PostOrder(Order order)
+        public void PostOrder(DtoOrder order)
         {
             if(order != null)
             {
                 if (!ExistsOrder(order))
-                {
-                    _context.Orders.Add(order);
+                { 
+                    _context.Orders.Add(_mapper.Map<Order>(order));
                     _context.SaveChanges();
                 }
             }
         }
 
-        public void PutOrder(Order order)
+        public void PutOrder(DtoOrder order)
         {
             if (ExistsOrder(order)) 
             {
-                _context.Orders.Entry(order);
+                _context.Orders.Entry(_mapper.Map<Order>(order));
                 _context.SaveChanges();
             }
         }
-        private bool ExistsOrder(Order order)
+        private bool ExistsOrder(DtoOrder order)
         {
-            return _context.Orders.Any(o => o.Id == order.Id);
+            return _context.Orders.Any(o => o.Id == order.OrderId);
         }
     }
 }

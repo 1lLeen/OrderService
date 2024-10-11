@@ -1,4 +1,5 @@
-﻿using WebApiOrderService.Models.OrderModels;
+﻿using WebApiOrderService.Models.DtoOrders;
+using WebApiOrderService.Models.OrderModels;
 
 namespace WebApiOrderService.Repositories.InterfacesRepositories
 {
@@ -6,8 +7,8 @@ namespace WebApiOrderService.Repositories.InterfacesRepositories
     {
         List<Order> GetAllOrders();
         Order GetOrder(int id);
-        void PostOrder(Order order);
-        void PutOrder(Order order);
+        void PostOrder(DtoOrder order);
+        void PutOrder(DtoOrder order);
         void DeleteOrder(int id);
 
     }
