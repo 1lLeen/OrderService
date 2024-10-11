@@ -1,4 +1,5 @@
-﻿using WebApiOrderService.EF;
+﻿using AutoMapper;
+using WebApiOrderService.EF;
 using WebApiOrderService.Models.OrderModels;
 using WebApiOrderService.Repositories.InterfacesRepositories;
 
@@ -6,7 +7,7 @@ namespace WebApiOrderService.Repositories
 {
     public class OrderRepository:IOrderRepository
     {
-        public OrderDbContext _context;
+        private readonly OrderDbContext _context; 
         public OrderRepository(OrderDbContext context)
         {
             _context = context;

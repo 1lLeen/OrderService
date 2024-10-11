@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WebApiOrderService.Models.DtoOrders;
 using WebApiOrderService.Models.OrderModels;
 using WebApiOrderService.Repositories.InterfacesRepositories;
 
@@ -8,27 +10,30 @@ namespace WebApiOrderService.Contorllers
     public class OrderController : ControllerBase
     {
         readonly IOrderRepository orderRepository;
-        public OrderController(IOrderRepository orderRepository)
+        readonly IMapper _mapper;
+        public OrderController(IOrderRepository orderRepository, IMapper mapper)
         {
             this.orderRepository = orderRepository;
+            _mapper = mapper;
         }
         [HttpGet("/api/GetAllOrders")]
-        public ActionResult<IEnumerable<Order>> GetAllOrders()
+        public ActionResult<IEnumerable<DtoOrder>> GetAllOrders()
         {
             if(orderRepository == null)
             {
                 return NotFound();
             }
-            return orderRepository.GetAllOrders();
+            List<DtoOrder> dtoOrder = _mapper.Map<List<DtoOrder>>(orderRepository.GetAllOrders());
+            return dtoOrder;
         }
 
         [HttpGet("/api/GetOrder/{id}")]
-        public ActionResult<Order> GetOrder(int id)
+        public ActionResult<DtoOrder> GetOrder(int id)
         {
-            return orderRepository.GetOrder(id);
+            return _mapper.Map<DtoOrder>(orderRepository.GetOrder(id));
         }
 
-        [HttpPost]
+        [HttpPost("/api/GetOrder/{order}")]
         public ActionResult Create(Order order)
         {
             if(order != null)
