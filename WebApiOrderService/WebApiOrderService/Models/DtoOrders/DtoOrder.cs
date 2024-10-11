@@ -7,5 +7,6 @@
         public string OrderDescription { get; set; }
         public int OrderPrice { get; set; }
 
+        public string FormatedPrice => $"${OrderPrice:N2}";
     }
 }
