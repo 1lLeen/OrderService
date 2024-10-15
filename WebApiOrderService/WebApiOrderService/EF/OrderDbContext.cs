@@ -11,9 +11,5 @@ namespace WebApiOrderService.EF
         public OrderDbContext() { }
         public DbSet<Order> Orders{ get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5433;Database=orderdb;Username=postgres;Password=jangir");
-        }
     }
 }
