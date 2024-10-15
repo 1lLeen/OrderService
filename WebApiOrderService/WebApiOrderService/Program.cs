@@ -4,8 +4,8 @@ using WebApiOrderService.AutoMapperOrder;
 using WebApiOrderService.EF;
 using WebApiOrderService.Models.DtoOrders;
 using WebApiOrderService.Models.OrderModels;
-using WebApiOrderService.Repositories;
-using WebApiOrderService.Repositories.InterfacesRepositories;
+using WebApiOrderService.Services;
+using WebApiOrderService.Services.InterfacesServices;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<OrderDbContext>(options =>
@@ -13,8 +13,8 @@ builder.Services.AddDbContext<OrderDbContext>(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddTransient<IOrderRepository, OrderRepository>();
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddTransient<IOrderService, OrderService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
  
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 

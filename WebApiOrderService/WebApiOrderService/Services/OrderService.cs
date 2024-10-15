@@ -2,15 +2,15 @@
 using WebApiOrderService.EF;
 using WebApiOrderService.Models.DtoOrders;
 using WebApiOrderService.Models.OrderModels;
-using WebApiOrderService.Repositories.InterfacesRepositories;
+using WebApiOrderService.Services.InterfacesServices;
 
-namespace WebApiOrderService.Repositories
+namespace WebApiOrderService.Services
 {
-    public class OrderRepository:IOrderRepository
+    public class OrderService:IOrderService
     {
         private readonly OrderDbContext _context; 
         private readonly IMapper _mapper;
-        public OrderRepository(OrderDbContext context,IMapper mapper)
+        public OrderService(OrderDbContext context,IMapper mapper)
         {
             _context = context;
             _mapper = mapper;

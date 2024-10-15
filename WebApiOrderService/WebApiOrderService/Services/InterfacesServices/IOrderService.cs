@@ -1,9 +1,9 @@
 ﻿using WebApiOrderService.Models.DtoOrders;
 using WebApiOrderService.Models.OrderModels;
 
-namespace WebApiOrderService.Repositories.InterfacesRepositories
+namespace WebApiOrderService.Services.InterfacesServices
 {
-    public interface IOrderRepository
+    public interface IOrderService
     {
         List<Order> GetAllOrders();
         Order GetOrder(int id);

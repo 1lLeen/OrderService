@@ -3,15 +3,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApiOrderService.Models.DtoOrders;
 using WebApiOrderService.Models.OrderModels;
-using WebApiOrderService.Repositories.InterfacesRepositories;
+using WebApiOrderService.Services.InterfacesServices;
 
 namespace WebApiOrderService.Contorllers
 {
     public class OrderController : ControllerBase
     {
-        readonly IOrderRepository orderRepository;
+        readonly IOrderService orderRepository;
         readonly IMapper _mapper;
-        public OrderController(IOrderRepository orderRepository, IMapper mapper)
+        public OrderController(IOrderService orderRepository, IMapper mapper)
         {
             this.orderRepository = orderRepository;
             _mapper = mapper;
