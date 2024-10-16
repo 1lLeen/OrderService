@@ -34,7 +34,7 @@ namespace WebApiOrderService.Contorllers
 
         [HttpPost]
         [Route("/[controller]/[action]")]
-        public async Task<ActionResult<List<DtoOrder>>> Create(DtoOrder order)
+        public async Task<ActionResult<List<DtoOrder>>> CreateOrder(DtoOrder order)
         {
             if (order != null)
             { 
@@ -44,7 +44,7 @@ namespace WebApiOrderService.Contorllers
         }
         [HttpDelete]
         [Route("/[controller]/[action]/{id}")]
-        public async Task<ActionResult<DtoOrder>> Delete(int id)
+        public async Task<ActionResult<DtoOrder>> DeleteOrder(int id)
         { 
             if(id > 0)
             {
@@ -54,7 +54,7 @@ namespace WebApiOrderService.Contorllers
         }
         [HttpPut]
         [Route("/[controller]/[action]/{id}")]
-        public async Task<ActionResult<DtoOrder>> Update(int id, DtoOrder order)
+        public async Task<ActionResult<DtoOrder>> UpdateOrder(int id, DtoOrder order)
         { 
             if (order != null)
             { 
