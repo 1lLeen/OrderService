@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using WebApiOrderService.EF;
 using WebApiOrderService.Models.DtoOrders;
 using WebApiOrderService.Models.OrderModels;
@@ -16,52 +17,67 @@ namespace WebApiOrderService.Services
             _mapper = mapper;
         }
 
-        public void DeleteOrder(int id)
+        public async void DeleteOrder(int id)
         {
             if(id > 0)
             {
-                var order = GetOrder(id);
+                var order = await GetOrder(id);
                 if (order != null)
                 {
                     _context.Orders.Remove(order);
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                 }
             }
         }
 
-        public List<Order> GetAllOrders()
+        public async Task<List<Order>> GetAllOrders()
         {
-            return _context.Orders.ToList();
+            if(_context.Orders != null)
+            {
+                return await _context.Orders.ToListAsync();
+            }
+            else
+            {
+                throw new ArgumentException("List is null");
+            }
         }
 
-        public Order GetOrder(int id)
+        public async Task<Order> GetOrder(int id)
         {
-            return _context.Orders.FirstOrDefault(o => o.Id == id);
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
+            if(order != null)
+            {
+                return order;
+            }
+            else
+            {
+                throw new ArgumentException("This order not exists");
+            }
         }
 
-        public void PostOrder(DtoOrder order)
+        public async void PostOrder(DtoOrder order)
         {
             if(order != null)
             {
-                if (!ExistsOrder(order))
+                if (await  ExistsOrder(order) == true)
                 { 
-                    _context.Orders.Add(_mapper.Map<Order>(order));
-                    _context.SaveChanges();
+                    await _context.Orders.AddAsync(_mapper.Map<Order>(order));
+                    await _context.SaveChangesAsync();
                 }
             }
         }
 
-        public void PutOrder(DtoOrder order)
+        public async void PutOrder(DtoOrder order)
         {
-            if (ExistsOrder(order)) 
+            if (await ExistsOrder(order) == true) 
             {
                 _context.Orders.Entry(_mapper.Map<Order>(order));
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
-        private bool ExistsOrder(DtoOrder order)
+        private async Task<bool> ExistsOrder(DtoOrder order)
         {
-            return _context.Orders.Any(o => o.Id == order.OrderId);
+            return await _context.Orders.AnyAsync(o => o.Id == order.OrderId);
         }
     }
 }
