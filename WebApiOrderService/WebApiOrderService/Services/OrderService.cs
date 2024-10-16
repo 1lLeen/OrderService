@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using WebApiOrderService.EF;
 using WebApiOrderService.Models.DtoOrders;
 using WebApiOrderService.Models.OrderModels;
@@ -78,6 +79,21 @@ namespace WebApiOrderService.Services
         private async Task<bool> ExistsOrder(DtoOrder order)
         {
             return await _context.Orders.AnyAsync(o => o.Id == order.OrderId);
+        }
+        public async void DeleteAllOrders()
+        {
+            var orders = await GetAllOrders();
+            if(orders != null)
+            {
+                foreach(var item in orders)
+                {
+                    DeleteOrder(item.Id);
+                }
+            }
+            else
+            {
+                throw new ArgumentException("Dont have any orders");
+            }
         }
     }
 }
