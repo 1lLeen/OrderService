@@ -6,10 +6,10 @@ namespace WebApiOrderService.Services.InterfacesServices
     public interface IOrderService
     {
         Task<List<Order>> GetAllOrders();
-        Task<Order> GetOrder(int id);
-        void PostOrder(DtoOrder order);
-        void PutOrder(DtoOrder order);
-        void DeleteOrder(int id);
+        Task<Order> GetOrderById(int id);
+        void AddOrder(DtoOrder order);
+        void UpdateOrder(DtoOrder order);
+        void DeleteOrderById(int id);
         void DeleteAllOrders();
 
     }

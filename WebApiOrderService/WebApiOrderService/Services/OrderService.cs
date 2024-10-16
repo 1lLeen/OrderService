@@ -20,13 +20,13 @@ namespace WebApiOrderService.Services
             _mapper = mapper;
         }
 
-        public async void DeleteOrder(int id)
+        public async void DeleteOrderById(int id)
         {
             if (id > 0)
             {
                 _dbContextTransaction = await _context.Database.BeginTransactionAsync();
                 _dbContextTransaction.CreateSavepoint("BeforeDelete");
-                var order = await GetOrder(id);
+                var order = await GetOrderById(id);
                 if (order != null)
                 {
                     try
@@ -68,7 +68,7 @@ namespace WebApiOrderService.Services
             }
         }
 
-        public async Task<Order> GetOrder(int id)
+        public async Task<Order> GetOrderById(int id)
         {
             _dbContextTransaction = await _context.Database.BeginTransactionAsync();
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
@@ -83,7 +83,7 @@ namespace WebApiOrderService.Services
             }
         }
 
-        public async void PostOrder(DtoOrder order)
+        public async void AddOrder(DtoOrder order)
         {
             if(order != null)
             {
@@ -113,7 +113,7 @@ namespace WebApiOrderService.Services
             }
         }
 
-        public async void PutOrder(DtoOrder order)
+        public async void UpdateOrder(DtoOrder order)
         {
             _dbContextTransaction = await _context.Database.BeginTransactionAsync();
             if (await ExistsOrder(order) == true)
