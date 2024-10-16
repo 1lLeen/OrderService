@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 using WebApiOrderService.EF;
 using WebApiOrderService.Models.DtoOrders;
 using WebApiOrderService.Models.OrderModels;
@@ -12,6 +13,7 @@ namespace WebApiOrderService.Services
     {
         private readonly OrderDbContext _context; 
         private readonly IMapper _mapper;
+        private IDbContextTransaction _dbContextTransaction; 
         public OrderService(OrderDbContext context,IMapper mapper)
         {
             _context = context;
@@ -20,22 +22,45 @@ namespace WebApiOrderService.Services
 
         public async void DeleteOrder(int id)
         {
-            if(id > 0)
+            if (id > 0)
             {
+                _dbContextTransaction = await _context.Database.BeginTransactionAsync();
+                _dbContextTransaction.CreateSavepoint("BeforeDelete");
                 var order = await GetOrder(id);
                 if (order != null)
                 {
-                    _context.Orders.Remove(order);
-                    await _context.SaveChangesAsync();
+                    try
+                    {
+                        _context.Orders.Remove(order);
+                        await _context.SaveChangesAsync();
+                        _dbContextTransaction.Commit();
+                    }
+                    catch
+                    {
+                        _dbContextTransaction.RollbackToSavepoint("BeforeMoreBlogs");
+                    }
+
                 }
+                else
+                {
+                    throw new ArgumentException("Order is not exists");
+                }
+            }
+            else 
+            {
+                throw new ArgumentException("Id is not correct");
             }
         }
 
         public async Task<List<Order>> GetAllOrders()
         {
-            if(_context.Orders != null)
+
+            _dbContextTransaction = await _context.Database.BeginTransactionAsync();
+            if (_context.Orders != null)
             {
-                return await _context.Orders.ToListAsync();
+                var lstOrders = await _context.Orders.ToListAsync();
+                await _dbContextTransaction.CommitAsync();
+                return lstOrders;
             }
             else
             {
@@ -45,9 +70,11 @@ namespace WebApiOrderService.Services
 
         public async Task<Order> GetOrder(int id)
         {
+            _dbContextTransaction = await _context.Database.BeginTransactionAsync();
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
             if(order != null)
             {
+                await _dbContextTransaction.CommitAsync();
                 return order;
             }
             else
@@ -60,20 +87,54 @@ namespace WebApiOrderService.Services
         {
             if(order != null)
             {
-                if (await  ExistsOrder(order) == true)
-                { 
-                    await _context.Orders.AddAsync(_mapper.Map<Order>(order));
-                    await _context.SaveChangesAsync();
+                _dbContextTransaction = await _context.Database.BeginTransactionAsync();
+                if (await ExistsOrder(order) == true)
+                {
+                    try
+                    {
+                        _dbContextTransaction.CreateSavepoint("BeforeAddOrder");
+                        await _context.Orders.AddAsync(_mapper.Map<Order>(order));
+                        await _context.SaveChangesAsync();
+                        _dbContextTransaction?.Commit();
+                    }
+                    catch
+                    {
+                        _dbContextTransaction.RollbackToSavepoint("BeforeAddOrder");
+                    }
                 }
+                else
+                {
+                    throw new ArgumentException("Order is exists");
+                }
+            }
+            else
+            {
+                throw new ArgumentException("Order is null");
             }
         }
 
         public async void PutOrder(DtoOrder order)
         {
-            if (await ExistsOrder(order) == true) 
+            _dbContextTransaction = await _context.Database.BeginTransactionAsync();
+            if (await ExistsOrder(order) == true)
             {
-                _context.Orders.Entry(_mapper.Map<Order>(order));
-                await _context.SaveChangesAsync();
+                try
+                {
+                    await _dbContextTransaction.CreateSavepointAsync("BeforeUpdate");
+                    _context.Orders.Entry(_mapper.Map<Order>(order));
+                    await _context.SaveChangesAsync();
+                    _dbContextTransaction?.Commit();
+                }
+                catch
+                {
+                    _dbContextTransaction.RollbackToSavepoint("BeforeUpdate");
+                    throw new ArgumentException("Connot be update");
+                }
+
+            }
+            else 
+            { 
+                throw new ArgumentException("Order is not exists");
             }
         }
         private async Task<bool> ExistsOrder(DtoOrder order)
@@ -83,11 +144,19 @@ namespace WebApiOrderService.Services
         public async void DeleteAllOrders()
         {
             var orders = await GetAllOrders();
+            _dbContextTransaction = await _context.Database.BeginTransactionAsync();
             if(orders != null)
             {
-                foreach(var item in orders)
+                try
                 {
-                    DeleteOrder(item.Id);
+                    await _dbContextTransaction.CreateSavepointAsync("BefeoreAllDelete");
+                    _context.Orders.RemoveRange(orders);
+                    await _context.SaveChangesAsync();
+                }
+                catch
+                {
+                    await _dbContextTransaction.RollbackToSavepointAsync("BeforeAllDelete");
+                    throw new ArgumentException($"{nameof(GetAllOrders)}");
                 }
             }
             else
