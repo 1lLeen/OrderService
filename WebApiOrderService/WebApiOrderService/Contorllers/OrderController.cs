@@ -17,36 +17,36 @@ namespace WebApiOrderService.Contorllers
             _mapper = mapper;
         }
         [HttpGet("/api/GetAllOrders")]
-        public ActionResult<IEnumerable<Order>> GetAllOrders()
+        public async Task<ActionResult<IEnumerable<Order>>> GetAllOrders()
         {
             if(orderRepository == null)
             {
                 return NotFound();
             }
-            List<Order> orders = orderRepository.GetAllOrders();
+            List<Order> orders = await orderRepository.GetAllOrders();
             return orders;
         }
 
         [HttpGet("/api/GetOrder/{id}")]
-        public ActionResult<Order> GetOrder(int id)
+        public async Task<ActionResult<Order>> GetOrder(int id)
         {
-            return orderRepository.GetOrder(id);
+            return await orderRepository.GetOrder(id);
         }
 
         [HttpPost("/api/Create")]
-        public ActionResult<List<Order>> Create([Bind("Name,Description,Price")] Order order)
+        public async Task<ActionResult<List<Order>>> Create(Order order)
         {
             if(order != null)
             {
                 orderRepository.PostOrder(_mapper.Map<DtoOrder>(order));
-                return orderRepository.GetAllOrders();
+                return await orderRepository.GetAllOrders();
             }
             return BadRequest();
         }
         [HttpDelete("/api/Delete/{id}")]
-        public ActionResult<Order> Delete(int id)
+        public async Task<ActionResult<Order>> Delete(int id)
         {
-            var order = orderRepository.GetOrder(id);
+            var order = await orderRepository.GetOrder(id);
             if(order != null)
             {
                 orderRepository.DeleteOrder(id);
@@ -55,11 +55,11 @@ namespace WebApiOrderService.Contorllers
             return BadRequest();
         }
         [HttpPut("/api/Put/{id}")]
-        public ActionResult<Order> Update(int id,[Bind("Name,Description,Price")] Order order)
+        public async Task<ActionResult<Order>> Update(int id, Order order)
         { 
             if (order != null)
             {
-                var orderToUpdate = orderRepository.GetOrder(id);
+                var orderToUpdate = await orderRepository.GetOrder(id);
                 orderToUpdate.Name = order.Name;
                 orderToUpdate.Description = order.Description;
                 orderToUpdate.Price = order.Price;
