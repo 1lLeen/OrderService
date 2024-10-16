@@ -2,6 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
+using System.Data.Common;
+using System.Transactions;
+using System.Xml;
 using WebApiOrderService.EF;
 using WebApiOrderService.Models.DtoOrders;
 using WebApiOrderService.Models.OrderModels;
@@ -12,55 +15,45 @@ namespace WebApiOrderService.Services
     public class OrderService:IOrderService
     {
         private readonly OrderDbContext _context; 
-        private readonly IMapper _mapper;
-        private IDbContextTransaction _dbContextTransaction; 
+        private readonly IMapper _mapper; 
         public OrderService(OrderDbContext context,IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
 
-        public async void DeleteOrderById(int id)
+        public async Task<DtoOrder> DeleteOrderById(int id)
         {
-            if (id > 0)
+            if(id > 0)
             {
-                _dbContextTransaction = await _context.Database.BeginTransactionAsync();
-                _dbContextTransaction.CreateSavepoint("BeforeDelete");
-                var order = await GetOrderById(id);
-                if (order != null)
+                var order =  await GetOrderById(id);
+                if (ExistsOrder(order))
                 {
-                    try
+                    using(var transaction = await _context.Database.BeginTransactionAsync())
                     {
-                        _context.Orders.Remove(order);
+                        _context.Orders.Remove(_mapper.Map<Order>(order));
                         await _context.SaveChangesAsync();
-                        _dbContextTransaction.Commit();
+                        await transaction.CommitAsync();
+                        return order;
                     }
-                    catch
-                    {
-                        _dbContextTransaction.RollbackToSavepoint("BeforeMoreBlogs");
-                    }
-
                 }
                 else
                 {
                     throw new ArgumentException("Order is not exists");
                 }
             }
-            else 
+            else
             {
-                throw new ArgumentException("Id is not correct");
+                throw new ArgumentException("ID not correct");
             }
         }
 
-        public async Task<List<Order>> GetAllOrders()
-        {
-
-            _dbContextTransaction = await _context.Database.BeginTransactionAsync();
+        public async Task<List<DtoOrder>> GetAllOrders()
+        { 
             if (_context.Orders != null)
             {
-                var lstOrders = await _context.Orders.ToListAsync();
-                await _dbContextTransaction.CommitAsync();
-                return lstOrders;
+                var lstOrders = await _context.Orders.ToListAsync(); 
+                return _mapper.Map<List<DtoOrder>>(lstOrders);
             }
             else
             {
@@ -68,14 +61,12 @@ namespace WebApiOrderService.Services
             }
         }
 
-        public async Task<Order> GetOrderById(int id)
+        public async Task<DtoOrder> GetOrderById(int id)
         {
-            _dbContextTransaction = await _context.Database.BeginTransactionAsync();
-            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
+            var order = await _context.Orders.Where(o => o.Id == id).AsNoTracking().FirstOrDefaultAsync();
             if(order != null)
             {
-                await _dbContextTransaction.CommitAsync();
-                return order;
+                return _mapper.Map<DtoOrder>(order);
             }
             else
             {
@@ -83,23 +74,18 @@ namespace WebApiOrderService.Services
             }
         }
 
-        public async void AddOrder(DtoOrder order)
+        public async Task<List<DtoOrder>> AddOrder(DtoOrder order)
         {
             if(order != null)
             {
-                _dbContextTransaction = await _context.Database.BeginTransactionAsync();
-                if (await ExistsOrder(order) == true)
+                if (!ExistsOrder(order))
                 {
-                    try
+                    using (var transaction = await _context.Database.BeginTransactionAsync())
                     {
-                        _dbContextTransaction.CreateSavepoint("BeforeAddOrder");
-                        await _context.Orders.AddAsync(_mapper.Map<Order>(order));
+                        await _context.AddAsync(_mapper.Map<Order> (order));
                         await _context.SaveChangesAsync();
-                        _dbContextTransaction?.Commit();
-                    }
-                    catch
-                    {
-                        _dbContextTransaction.RollbackToSavepoint("BeforeAddOrder");
+                        await transaction.CommitAsync();
+                        return await GetAllOrders();
                     }
                 }
                 else
@@ -109,54 +95,57 @@ namespace WebApiOrderService.Services
             }
             else
             {
-                throw new ArgumentException("Order is null");
+                throw new ArgumentException("Order is not correct");
             }
         }
 
-        public async void UpdateOrder(DtoOrder order)
+        public async Task<DtoOrder> UpdateOrder(int id,DtoOrder order)
         {
-            _dbContextTransaction = await _context.Database.BeginTransactionAsync();
-            if (await ExistsOrder(order) == true)
+          
+            var orderToUpdate = await GetOrderById(id);
+            if (orderToUpdate != null) 
             {
-                try
+                if (ExistsOrder(orderToUpdate))
                 {
-                    await _dbContextTransaction.CreateSavepointAsync("BeforeUpdate");
-                    _context.Orders.Entry(_mapper.Map<Order>(order));
-                    await _context.SaveChangesAsync();
-                    _dbContextTransaction?.Commit();
+                    using(var transaction = await _context.Database.BeginTransactionAsync()) 
+                    {
+                        orderToUpdate.OrderName = order.OrderName;
+                        orderToUpdate.OrderDescription = order.OrderDescription;
+                        orderToUpdate.OrderPrice = order.OrderPrice;
+                        _context.Orders.Entry(_mapper.Map<Order>(orderToUpdate)).State = EntityState.Modified;
+                        await _context.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                        return orderToUpdate;
+                    } 
                 }
-                catch
-                {
-                    _dbContextTransaction.RollbackToSavepoint("BeforeUpdate");
-                    throw new ArgumentException("Connot be update");
-                }
-
             }
-            else 
-            { 
-                throw new ArgumentException("Order is not exists");
-            }
+            throw new ArgumentException("This order not exists with this id");
         }
-        private async Task<bool> ExistsOrder(DtoOrder order)
+        private bool ExistsOrder(DtoOrder order)
         {
-            return await _context.Orders.AnyAsync(o => o.Id == order.OrderId);
+            return  _context.Orders.Any(o =>
+            o.Name == order.OrderName &&
+            o.Description == order.OrderDescription &&
+            o.Price == order.OrderPrice);
         }
         public async void DeleteAllOrders()
         {
-            var orders = await GetAllOrders();
-            _dbContextTransaction = await _context.Database.BeginTransactionAsync();
+            var orders = await GetAllOrders(); 
             if(orders != null)
             {
-                try
+                using(var transaction = _context.Database.BeginTransaction())
                 {
-                    await _dbContextTransaction.CreateSavepointAsync("BefeoreAllDelete");
-                    _context.Orders.RemoveRange(orders);
-                    await _context.SaveChangesAsync();
-                }
-                catch
-                {
-                    await _dbContextTransaction.RollbackToSavepointAsync("BeforeAllDelete");
-                    throw new ArgumentException($"{nameof(GetAllOrders)}");
+                    try
+                    {
+                        _context.Orders.RemoveRange(_mapper.Map<List<Order>>(orders));
+                        await _context.SaveChangesAsync();
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw new ArgumentException($"{nameof(GetAllOrders)}");
+                    }
                 }
             }
             else
@@ -164,5 +153,6 @@ namespace WebApiOrderService.Services
                 throw new ArgumentException("Dont have any orders");
             }
         }
+       
     }
 }

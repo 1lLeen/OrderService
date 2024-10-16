@@ -20,6 +20,10 @@ builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 var app = builder.Build();
 
+app.MapDefaultControllerRoute();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Order}/{action=GetAllOrders}");
 app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();

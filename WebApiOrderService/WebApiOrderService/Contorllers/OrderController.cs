@@ -3,69 +3,62 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApiOrderService.Models.DtoOrders;
 using WebApiOrderService.Models.OrderModels;
+using WebApiOrderService.Services;
 using WebApiOrderService.Services.InterfacesServices;
 
 namespace WebApiOrderService.Contorllers
 {
+    [Route("/[controller]/[action]")]
     public class OrderController : ControllerBase
     {
-        readonly IOrderService orderRepository;
+        readonly IOrderService orderService;
         readonly IMapper _mapper;
-        public OrderController(IOrderService orderRepository, IMapper mapper)
+        public OrderController(IOrderService orderService, IMapper mapper)
         {
-            this.orderRepository = orderRepository;
+            this.orderService = orderService;
             _mapper = mapper;
         }
-        [HttpGet("/api/GetAllOrders")]
-        public async Task<ActionResult<IEnumerable<Order>>> GetAllOrders()
-        {
-            if(orderRepository == null)
-            {
-                return NotFound();
-            }
-            List<Order> orders = await orderRepository.GetAllOrders();
-            return orders;
+        [HttpGet]
+        [Route("/[controller]/[action]")]
+        public async Task<ActionResult<IEnumerable<DtoOrder>>> GetAllOrders()
+        { 
+            return await orderService.GetAllOrders();
         }
 
-        [HttpGet("/api/GetOrder/{id}")]
-        public async Task<ActionResult<Order>> GetOrder(int id)
+        [HttpGet]
+        [Route("/[controller]/[action]/{id}")]
+        public async Task<ActionResult<DtoOrder>> GetOrder(int id)
         {
-            return await orderRepository.GetOrder(id);
+            return await orderService.GetOrderById(id);
         }
 
-        [HttpPost("/api/Create")]
-        public async Task<ActionResult<List<Order>>> Create(Order order)
+        [HttpPost]
+        [Route("/[controller]/[action]")]
+        public async Task<ActionResult<List<DtoOrder>>> Create(DtoOrder order)
         {
-            if(order != null)
-            {
-                orderRepository.PostOrder(_mapper.Map<DtoOrder>(order));
-                return await orderRepository.GetAllOrders();
+            if (order != null)
+            { 
+                return await orderService.AddOrder(order);
             }
             return BadRequest();
         }
-        [HttpDelete("/api/Delete/{id}")]
-        public async Task<ActionResult<Order>> Delete(int id)
-        {
-            var order = await orderRepository.GetOrder(id);
-            if(order != null)
+        [HttpDelete]
+        [Route("/[controller]/[action]/{id}")]
+        public async Task<ActionResult<DtoOrder>> Delete(int id)
+        { 
+            if(id > 0)
             {
-                orderRepository.DeleteOrder(id);
-                return order;
+                return await orderService.DeleteOrderById(id);
             }
             return BadRequest();
         }
-        [HttpPut("/api/Put/{id}")]
-        public async Task<ActionResult<Order>> Update(int id, Order order)
+        [HttpPut]
+        [Route("/[controller]/[action]/{id}")]
+        public async Task<ActionResult<DtoOrder>> Update(int id, DtoOrder order)
         { 
             if (order != null)
-            {
-                var orderToUpdate = await orderRepository.GetOrder(id);
-                orderToUpdate.Name = order.Name;
-                orderToUpdate.Description = order.Description;
-                orderToUpdate.Price = order.Price;
-
-                orderRepository.PutOrder(_mapper.Map<DtoOrder>(orderToUpdate));
-                return order;
+            { 
+                return await orderService.UpdateOrder(id, order);
             }
             return BadRequest();
         }
