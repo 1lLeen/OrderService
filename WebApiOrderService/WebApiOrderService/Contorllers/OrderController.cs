@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using MassTransit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WebApiOrderService.Models.ConsumerModels;
 using WebApiOrderService.Models.DtoOrders;
 using WebApiOrderService.Models.OrderModels;
 using WebApiOrderService.Services;
@@ -13,10 +15,12 @@ namespace WebApiOrderService.Contorllers
     {
         readonly IOrderService orderService;
         readonly IMapper _mapper;
-        public OrderController(IOrderService orderService, IMapper mapper)
+        private readonly IPublishEndpoint _publishEndpoint;
+        public OrderController(IOrderService orderService, IMapper mapper, IPublishEndpoint publishEndpoint)
         {
             this.orderService = orderService;
             _mapper = mapper;
+            _publishEndpoint = publishEndpoint;
         }
         [HttpGet]
         [Route("/[controller]/[action]")]
@@ -38,7 +42,13 @@ namespace WebApiOrderService.Contorllers
         {
             if (order != null)
             { 
-                return await orderService.AddOrder(order);
+                var result = await orderService.AddOrder(order);
+                await _publishEndpoint.Publish(new CreateOrder
+                {
+                    Name = order.OrderName,
+                    Price = order.OrderPrice.ToString(),
+                });
+                return result;
             }
             return BadRequest();
         }
