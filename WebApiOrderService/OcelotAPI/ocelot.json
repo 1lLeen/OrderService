@@ -1,0 +1,72 @@
+{
+  "GlobalConfiguration": {},
+  "Routes": [
+    {
+      "UpstreamPathTemplate": "/Order/GetAllOrders",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/Order/GetAllOrders",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7018
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/Order/GetOrder/{id}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/Order/GetOrder/{id}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7018
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/Order/CreateOrder",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/Order/CreateOrder",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7018
+        }
+      ],
+      "RateLimitOptions": {
+        "EnableRateLimiting": true,
+        "Period": "10s",
+        "Limit": 3,
+        "PeriodTimespan": 10
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/Order/DeleteOrder/{id}",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "DownstreamPathTemplate": "/Order/DeleteOrder/{id}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7018
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/Order/UpdateOrder/{id}",
+      "UpstreamHttpMethod": [ "PUT" ],
+      "DownstreamPathTemplate": "/Order/UpdateOrder/{id}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7018
+        }
+      ]
+    }
+
+  ]
+}
