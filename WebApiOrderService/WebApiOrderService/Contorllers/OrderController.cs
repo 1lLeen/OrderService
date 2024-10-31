@@ -2,9 +2,9 @@
 using MassTransit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using WebApiOrderService.Models.ConsumerModels;
 using WebApiOrderService.Models.DtoOrders;
 using WebApiOrderService.Models.OrderModels;
+using WebApiOrderService.Models.RabbitMq.Interfaces;
 using WebApiOrderService.Services;
 using WebApiOrderService.Services.InterfacesServices;
 
@@ -14,13 +14,13 @@ namespace WebApiOrderService.Contorllers
     public class OrderController : ControllerBase
     {
         readonly IOrderService orderService;
-        readonly IMapper _mapper;
-        private readonly IPublishEndpoint _publishEndpoint;
-        public OrderController(IOrderService orderService, IMapper mapper, IPublishEndpoint publishEndpoint)
+        readonly IMapper _mapper; 
+        private readonly IRabbitMqService _mqService;
+        public OrderController(IOrderService orderService, IMapper mapper, IRabbitMqService mqService)
         {
             this.orderService = orderService;
             _mapper = mapper;
-            _publishEndpoint = publishEndpoint;
+            _mqService = mqService;
         }
         [HttpGet]
         [Route("/[controller]/[action]")]
@@ -43,11 +43,7 @@ namespace WebApiOrderService.Contorllers
             if (order != null)
             { 
                 var result = await orderService.AddOrder(order);
-                await _publishEndpoint.Publish(new CreateOrder
-                {
-                    Name = order.OrderName,
-                    Price = order.OrderPrice.ToString(),
-                });
+                _mqService.SendMessage($"Order was created {order.OrderName}");
                 return result;
             }
             return BadRequest();
