@@ -5,13 +5,15 @@ using WebApiOrderService.AutoMapperOrder;
 using WebApiOrderService.EF;
 using WebApiOrderService.Models.DtoOrders;
 using WebApiOrderService.Models.OrderModels;
-using WebApiOrderService.Services;
-using WebApiOrderService.Services.InterfacesServices;
 using RabbitMQ;
 using RabbitMQ.Client;
 using System.Reflection;
-using WebApiOrderService.Models.RabbitMq;
-using WebApiOrderService.Models.RabbitMq.Interfaces;
+using WebApiOrderService.Services.OrderServices;
+using WebApiOrderService.Services.InterfacesServices.OrderInterfaces;
+using WebApiOrderService.Services.RabbitServices;
+using WebApiOrderService.Services.InterfacesServices.RabbitMqInterfaces;
+using WebApiOrderService.Models.RabbitModels;
+using WebApiOrderService.Services.ConsumeService;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<OrderDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -19,13 +21,17 @@ builder.Services.AddDbContext<OrderDbContext>(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddMassTransit(x =>
-{ 
+{
+    x.AddConsumer<SenderConsumeService>();
+    var rabbConfiguration = builder.Configuration.GetSection(nameof(RabbitConfiguration)).Get<RabbitConfiguration>();
+
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host("localhost", c =>
+        cfg.ConfigureEndpoints(context);
+        cfg.Host(rabbConfiguration.Host, c =>
         {
-            c.Username("guest");
-            c.Password("guest");
+            c.Username(rabbConfiguration.UserName);
+            c.Password(rabbConfiguration.Password);
         });
     });
 });

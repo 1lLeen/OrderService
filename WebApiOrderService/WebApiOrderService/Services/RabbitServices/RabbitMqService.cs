@@ -2,9 +2,9 @@
 using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
-using WebApiOrderService.Models.RabbitMq.Interfaces;
+using WebApiOrderService.Services.InterfacesServices.RabbitMqInterfaces;
 
-namespace WebApiOrderService.Models.RabbitMq
+namespace WebApiOrderService.Services.RabbitServices
 {
     public class RabbitMqService : IRabbitMqService
     {
@@ -30,7 +30,7 @@ namespace WebApiOrderService.Models.RabbitMq
                     channel.BasicPublish(exchange: "", routingKey: queueName, basicProperties: null, body: body);
                 }
             }
-           
+
             Console.WriteLine($"Sent: {message}");
         }
     }

@@ -8,15 +8,15 @@ using System.Xml;
 using WebApiOrderService.EF;
 using WebApiOrderService.Models.DtoOrders;
 using WebApiOrderService.Models.OrderModels;
-using WebApiOrderService.Services.InterfacesServices;
+using WebApiOrderService.Services.InterfacesServices.OrderInterfaces;
 
-namespace WebApiOrderService.Services
+namespace WebApiOrderService.Services.OrderServices
 {
-    public class OrderService:IOrderService
+    public class OrderService : IOrderService
     {
-        private readonly OrderDbContext _context; 
-        private readonly IMapper _mapper; 
-        public OrderService(OrderDbContext context,IMapper mapper)
+        private readonly OrderDbContext _context;
+        private readonly IMapper _mapper;
+        public OrderService(OrderDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
@@ -24,12 +24,12 @@ namespace WebApiOrderService.Services
 
         public async Task<DtoOrder> DeleteOrderById(int id)
         {
-            if(id > 0)
+            if (id > 0)
             {
-                var order =  await GetOrderById(id);
+                var order = await GetOrderById(id);
                 if (ExistsOrder(order))
                 {
-                    using(var transaction = await _context.Database.BeginTransactionAsync())
+                    using (var transaction = await _context.Database.BeginTransactionAsync())
                     {
                         _context.Orders.Remove(_mapper.Map<Order>(order));
                         await _context.SaveChangesAsync();
@@ -49,10 +49,10 @@ namespace WebApiOrderService.Services
         }
 
         public async Task<List<DtoOrder>> GetAllOrders()
-        { 
+        {
             if (_context.Orders != null)
             {
-                var lstOrders = await _context.Orders.ToListAsync(); 
+                var lstOrders = await _context.Orders.ToListAsync();
                 return _mapper.Map<List<DtoOrder>>(lstOrders);
             }
             else
@@ -64,7 +64,7 @@ namespace WebApiOrderService.Services
         public async Task<DtoOrder> GetOrderById(int id)
         {
             var order = await _context.Orders.Where(o => o.Id == id).AsNoTracking().FirstOrDefaultAsync();
-            if(order != null)
+            if (order != null)
             {
                 return _mapper.Map<DtoOrder>(order);
             }
@@ -76,13 +76,13 @@ namespace WebApiOrderService.Services
 
         public async Task<List<DtoOrder>> AddOrder(DtoOrder order)
         {
-            if(order != null)
+            if (order != null)
             {
                 if (!ExistsOrder(order))
                 {
                     using (var transaction = await _context.Database.BeginTransactionAsync())
                     {
-                        await _context.AddAsync(_mapper.Map<Order> (order));
+                        await _context.AddAsync(_mapper.Map<Order>(order));
                         await _context.SaveChangesAsync();
                         await transaction.CommitAsync();
                         return await GetAllOrders();
@@ -99,15 +99,15 @@ namespace WebApiOrderService.Services
             }
         }
 
-        public async Task<DtoOrder> UpdateOrder(int id,DtoOrder order)
+        public async Task<DtoOrder> UpdateOrder(int id, DtoOrder order)
         {
-          
+
             var orderToUpdate = await GetOrderById(id);
-            if (orderToUpdate != null) 
+            if (orderToUpdate != null)
             {
                 if (ExistsOrder(orderToUpdate))
                 {
-                    using(var transaction = await _context.Database.BeginTransactionAsync()) 
+                    using (var transaction = await _context.Database.BeginTransactionAsync())
                     {
                         orderToUpdate.OrderName = order.OrderName;
                         orderToUpdate.OrderDescription = order.OrderDescription;
@@ -116,24 +116,24 @@ namespace WebApiOrderService.Services
                         await _context.SaveChangesAsync();
                         await transaction.CommitAsync();
                         return orderToUpdate;
-                    } 
+                    }
                 }
             }
             throw new ArgumentException("This order not exists with this id");
         }
         private bool ExistsOrder(DtoOrder order)
         {
-            return  _context.Orders.Any(o =>
+            return _context.Orders.Any(o =>
             o.Name == order.OrderName &&
             o.Description == order.OrderDescription &&
             o.Price == order.OrderPrice);
         }
         public async void DeleteAllOrders()
         {
-            var orders = await GetAllOrders(); 
-            if(orders != null)
+            var orders = await GetAllOrders();
+            if (orders != null)
             {
-                using(var transaction = _context.Database.BeginTransaction())
+                using (var transaction = _context.Database.BeginTransaction())
                 {
                     try
                     {
@@ -153,6 +153,6 @@ namespace WebApiOrderService.Services
                 throw new ArgumentException("Dont have any orders");
             }
         }
-       
+
     }
 }

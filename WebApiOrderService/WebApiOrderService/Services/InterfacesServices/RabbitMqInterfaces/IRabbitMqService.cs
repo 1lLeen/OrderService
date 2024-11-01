@@ -1,4 +1,4 @@
-﻿namespace WebApiOrderService.Models.RabbitMq.Interfaces
+﻿namespace WebApiOrderService.Services.InterfacesServices.RabbitMqInterfaces
 {
     public interface IRabbitMqService
     {

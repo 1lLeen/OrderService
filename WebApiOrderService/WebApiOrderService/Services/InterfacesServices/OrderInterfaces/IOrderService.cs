@@ -1,7 +1,7 @@
 ﻿using WebApiOrderService.Models.DtoOrders;
 using WebApiOrderService.Models.OrderModels;
 
-namespace WebApiOrderService.Services.InterfacesServices
+namespace WebApiOrderService.Services.InterfacesServices.OrderInterfaces
 {
     public interface IOrderService
     {
