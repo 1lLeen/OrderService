@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -9,6 +10,7 @@ using WebApiOrderService.EF;
 using WebApiOrderService.Models.DtoOrders;
 using WebApiOrderService.Models.OrderModels;
 using WebApiOrderService.Services.InterfacesServices.OrderInterfaces;
+using static MassTransit.ValidationResultExtensions;
 
 namespace WebApiOrderService.Services.OrderServices
 {
@@ -16,10 +18,12 @@ namespace WebApiOrderService.Services.OrderServices
     {
         private readonly OrderDbContext _context;
         private readonly IMapper _mapper;
-        public OrderService(OrderDbContext context, IMapper mapper)
+        private readonly IBus _bus;
+        public OrderService(OrderDbContext context, IMapper mapper, IBus bus)
         {
             _context = context;
             _mapper = mapper;
+            _bus = bus;
         }
 
         public async Task<DtoOrder> DeleteOrderById(int id)
@@ -85,6 +89,7 @@ namespace WebApiOrderService.Services.OrderServices
                         await _context.AddAsync(_mapper.Map<Order>(order));
                         await _context.SaveChangesAsync();
                         await transaction.CommitAsync();
+                        await _bus.Publish(order);
                         return await GetAllOrders();
                     }
                 }

@@ -16,16 +16,10 @@ namespace WebApiOrderService.Contorllers
     {
         readonly IOrderService orderService;
         readonly IMapper _mapper; 
-        private readonly IRabbitMqService _mqService; 
-        private readonly IBus _bus;
-        private readonly IRequestClient<DtoOrder> _client;
-        public OrderController(IOrderService orderService, IMapper mapper, IRabbitMqService mqService, IBus bus, IRequestClient<DtoOrder> client)
+        public OrderController(IOrderService orderService, IMapper mapper)
         {
             this.orderService = orderService;
-            _mapper = mapper;
-            _mqService = mqService; 
-            _bus = bus;
-            _client = client;
+            _mapper = mapper; 
         }
         [HttpGet]
         [Route("/[controller]/[action]")]
@@ -48,12 +42,6 @@ namespace WebApiOrderService.Contorllers
             if (order != null)
             { 
                 var result = await orderService.AddOrder(order);
-                //_mqService.SendMessage($"Order was created {order.OrderName}");
-                //var url = new Uri("rabbitmq://localhost/SenderConsumeService");
-
-                //var endpoint = await _bus.GetSendEndpoint(url);
-                await _bus.Publish(result.LastOrDefault());
-                //await endpoint.Send(result.LastOrDefault());
                 return result;
             }
             return BadRequest();
