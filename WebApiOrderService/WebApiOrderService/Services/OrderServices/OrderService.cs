@@ -18,12 +18,13 @@ namespace WebApiOrderService.Services.OrderServices
     {
         private readonly OrderDbContext _context;
         private readonly IMapper _mapper;
-        private readonly IBus _bus;
-        public OrderService(OrderDbContext context, IMapper mapper, IBus bus)
+        private readonly IBus _bus; private readonly IPublishEndpoint _publish;
+        public OrderService(OrderDbContext context, IMapper mapper, IBus bus, IPublishEndpoint publish)
         {
             _context = context;
             _mapper = mapper;
             _bus = bus;
+            _publish = publish;
         }
 
         public async Task<DtoOrder> DeleteOrderById(int id)

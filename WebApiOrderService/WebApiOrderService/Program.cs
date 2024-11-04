@@ -22,12 +22,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddMassTransit(x =>
 {
-    x.AddConsumer<SenderConsumeService>();
+    x.AddConsumer<OrderConsumer>();
     var rabbConfiguration = builder.Configuration.GetSection(nameof(RabbitConfiguration)).Get<RabbitConfiguration>();
 
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.ConfigureEndpoints(context);
+       
         cfg.Host(rabbConfiguration.Host, c =>
         {
             c.Username(rabbConfiguration.UserName);
