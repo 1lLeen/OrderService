@@ -31,9 +31,9 @@ namespace DeliveryService.Controllers
             return await _services.GetAllDeliveries();
         }
         [Route("/[controller]/[action]")]
-        public async Task<IActionResult> CreateDelivery(DtoDelivery delivery) 
+        public async Task<IActionResult> CreateDelivery(DtoDelivery delivery)
         {
-            await _services.CreateDelivery(delivery);
+            var res = await _services.CreateDelivery(delivery);
             return Ok();
         }
 

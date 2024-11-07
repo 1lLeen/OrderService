@@ -90,7 +90,7 @@ namespace WebApiOrderService.Services.OrderServices
                         await _context.AddAsync(_mapper.Map<Order>(order));
                         await _context.SaveChangesAsync();
                         await transaction.CommitAsync();
-                        await _bus.Publish(order);
+                        await _publish.Publish(order);
                         return await GetAllOrders();
                     }
                 }
