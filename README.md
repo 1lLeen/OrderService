@@ -1,3 +1,20 @@
+# OrderService
+
+Микросервис для управления заказами, реализованный на базе .NET Core. Использует PostgreSQL в качестве базы данных и OcelotAPI для маршрутизации.
+
+## Функционал
+- Создание, обновление и удаление заказов.
+- Интеграция с OcelotAPI для маршрутизации запросов.
+
+## Установка
+1. Клонируйте репозиторий: `git clone https://github.com/1lLeen/OrderService.git`
+2. Установите зависимости: `dotnet restore`
+3. Настройте базу данных в `appsettings.json`.
+4. Запустите миграции: `dotnet ef database update`
+5. Запустите проект: `dotnet run`
+
+
+
 ## Introduction
 
 This is a simple pipeline example for a .NET Core application, showing just
